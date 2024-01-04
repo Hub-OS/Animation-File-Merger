@@ -1,6 +1,6 @@
 # Animation File Merger
 
-A utility for merging BoomSheets animation files.
+A utility for merging BoomSheets animation files. [Live Page](https://hub-os.github.io/Animation-File-Merger/).
 
 Not affiliated with [BoomSheets](https://store.steampowered.com/app/2189000/BoomSheets/).
 
