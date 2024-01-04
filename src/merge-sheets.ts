@@ -23,6 +23,8 @@ type FrameBin = {
   height: number;
 };
 
+const padding = 1;
+
 export default function mergeSheets(
   canvas: HTMLCanvasElement,
   inputSheets: InputSheets
@@ -44,8 +46,8 @@ export default function mergeSheets(
         bins.push({
           image: sheet.image,
           frame,
-          width: frame.w + 2,
-          height: frame.h + 2,
+          width: frame.w + padding * 2,
+          height: frame.h + padding * 2,
         });
       }
     }
@@ -63,20 +65,23 @@ export default function mergeSheets(
   for (const item of packResult.items) {
     const frame = item.item.frame;
 
+    const destX = item.x + padding;
+    const destY = item.y + padding;
+
     ctx.drawImage(
       item.item.image,
       frame.x,
       frame.y,
       frame.w,
       frame.h,
-      item.x + 1,
-      item.y + 1,
+      destX,
+      destY,
       frame.w,
       frame.h
     );
 
-    frame.x = item.x;
-    frame.y = item.y;
+    frame.x = destX;
+    frame.y = destY;
   }
 
   return animations;
