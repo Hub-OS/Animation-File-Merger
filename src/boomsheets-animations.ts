@@ -252,7 +252,7 @@ function serializeObject(name: string, object: Object): string {
         break;
       case "number":
         if (value != 0) {
-          text.push(` ${key}="${value}"`);
+          text.push(` ${key}=${value}`);
         }
         break;
       case "boolean":
