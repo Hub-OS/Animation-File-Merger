@@ -235,7 +235,11 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
   return animations;
 }
 
-function serializeObject(name: string, object: Object): string {
+function serializeObject(
+  name: string,
+  object: Object,
+  options = { quoteAllValues: true }
+): string {
   const text: string[] = [name];
 
   for (const key in object) {
@@ -252,14 +256,23 @@ function serializeObject(name: string, object: Object): string {
         break;
       case "number":
         if (value != 0) {
-          text.push(` ${key}=${value}`);
+          if (options.quoteAllValues) {
+            text.push(` ${key}="${value}"`);
+          } else {
+            text.push(` ${key}=${value}`);
+          }
         }
         break;
       case "boolean":
         if (value == true) {
           text.push(" ");
           text.push(key);
-          text.push("=1");
+
+          if (options.quoteAllValues) {
+            text.push('="1"');
+          } else {
+            text.push("=1");
+          }
         }
         break;
       case "object":
