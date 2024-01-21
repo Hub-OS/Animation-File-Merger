@@ -13,8 +13,8 @@ export type BoomSheetsFrame = {
   h: number;
   originx: number;
   originy: number;
-  flipx: number;
-  flipy: number;
+  flipx: boolean;
+  flipy: boolean;
   duration: string;
   points: BoomSheetsPoint[];
 };
@@ -197,8 +197,8 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
         h: parseFloat(attributes.h) || 0,
         originx: parseFloat(attributes.originx) || 0,
         originy: parseFloat(attributes.originy) || 0,
-        flipx: parseInt(attributes.flipy) || 0,
-        flipy: parseInt(attributes.flipy) || 0,
+        flipx: parseInt(attributes.flipx) == 1,
+        flipy: parseInt(attributes.flipy) == 1,
         duration: attributes.duration || "",
         points: [],
       };
