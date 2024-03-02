@@ -181,7 +181,7 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
 
       animations.push(animation);
       currentAnimation = animation;
-    } else if (line.startsWith("frame ") || line.startsWith("blank ")) {
+    } else if (line.startsWith("frame") || line.startsWith("blank")) {
       if (!currentAnimation) {
         throw new Error(
           `No animation state to associate frame with on line ${lineNumber}`
