@@ -118,7 +118,7 @@ body {
 }
 
 #about-dialog {
-  min-width: 400px;
+  max-width: 500px;
   margin-top: auto;
   background: var(--container-color);
   color: var(--text-color);
