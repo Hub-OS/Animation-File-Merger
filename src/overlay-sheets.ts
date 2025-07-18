@@ -134,18 +134,18 @@ export default function overlaySheets(
 
     // resolve size
     for (const { frame } of bin.overlayed) {
-      bin.width = Math.max(
-        bin.width,
+      bin.outFrame.w = Math.max(
+        bin.outFrame.w,
         bin.outFrame.originx - frame.originx + frame.w
       );
-      bin.height = Math.max(
-        bin.height,
+      bin.outFrame.h = Math.max(
+        bin.outFrame.h,
         bin.outFrame.originy - frame.originy + frame.h
       );
     }
 
-    bin.outFrame.w = bin.width;
-    bin.outFrame.h = bin.height;
+    bin.width = bin.outFrame.w + padding * 2;
+    bin.height = bin.outFrame.h + padding * 2;
   }
 
   // pack
