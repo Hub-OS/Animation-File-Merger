@@ -2,6 +2,7 @@ import {
   parseAnimationsText,
   serializeAnimations,
 } from "./boomsheets-animations";
+import dedupSheet from "./dedup-sheet";
 import { loadImageFile, loadTextFile } from "./file-loading";
 import InputSheets from "./input-sheets";
 import mergeSheets from "./merge-sheets";
@@ -27,7 +28,9 @@ document.getElementById("overlay-button")!.onclick = function () {
   ) as HTMLTextAreaElement;
 
   try {
-    const animations = overlaySheets(canvas, inputSheets);
+    const offscreenCanvas = document.createElement("canvas");
+    const animations = overlaySheets(offscreenCanvas, inputSheets);
+    dedupSheet(canvas, offscreenCanvas, animations);
     textarea.value = serializeAnimations(animations);
   } catch (error) {
     logError(error);
@@ -41,7 +44,9 @@ document.getElementById("merge-button")!.onclick = function () {
   ) as HTMLTextAreaElement;
 
   try {
-    const animations = mergeSheets(canvas, inputSheets);
+    const offscreenCanvas = document.createElement("canvas");
+    const animations = mergeSheets(offscreenCanvas, inputSheets);
+    dedupSheet(canvas, offscreenCanvas, animations);
     textarea.value = serializeAnimations(animations);
   } catch (error) {
     logError(error);

@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "bin-pack": "^1.0.2",
+    "md5": "^2.3.0",
     "quote-unquote": "^1.0.0"
   }
 }
