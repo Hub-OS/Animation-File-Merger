@@ -5,6 +5,7 @@ import {
 import { loadImageFile, loadTextFile } from "./file-loading";
 import InputSheets from "./input-sheets";
 import mergeSheets from "./merge-sheets";
+import overlaySheets from "./overlay-sheets";
 import { updateSheetList } from "./sheet-list-ui";
 
 const inputSheets = new InputSheets();
@@ -17,6 +18,20 @@ function logError(error) {
 document.getElementById("clear-button")!.onclick = function () {
   inputSheets.sheets = [];
   updateSheetList(inputSheets);
+};
+
+document.getElementById("overlay-button")!.onclick = function () {
+  const canvas = document.querySelector("#output canvas") as HTMLCanvasElement;
+  const textarea = document.querySelector(
+    "#output textarea"
+  ) as HTMLTextAreaElement;
+
+  try {
+    const animations = overlaySheets(canvas, inputSheets);
+    textarea.value = serializeAnimations(animations);
+  } catch (error) {
+    logError(error);
+  }
 };
 
 document.getElementById("merge-button")!.onclick = function () {
