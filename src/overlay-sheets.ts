@@ -2,20 +2,6 @@ import binPack from "bin-pack";
 import { BoomSheetsAnimation, BoomSheetsFrame } from "./boomsheets-animations";
 import InputSheets from "./input-sheets";
 
-type BinPackItem<Item> = {
-  x: number; // x coordinate of the packed box
-  y: number; // y coordinate of the packed box
-  width: number; // width of the packed box
-  height: number; // height of the packed box
-  item: Item; // original object that was passed in
-};
-
-type BinPackResult<Item> = {
-  width: number; // width of the containing box
-  height: number; // height of the containing box
-  items: BinPackItem<Item>[]; // packed items
-};
-
 type FrameBin = {
   overlayed: {
     // we want to store the image, but that blocks us from structuredClone
@@ -163,7 +149,7 @@ export default function overlaySheets(
   }
 
   // pack
-  const packResult = binPack(bins) as BinPackResult<FrameBin>;
+  const packResult = binPack(bins);
 
   // update outFrames and render
   canvas.width = packResult.width;
