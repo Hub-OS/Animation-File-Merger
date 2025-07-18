@@ -120,27 +120,33 @@ export default function overlaySheets(
 
           remainingDuration -= existingBin.duration;
           existingBin.overlayed.push({ sheetIndex: sheetI, frame });
+        }
+      }
 
-          // resolve origin
-          existingBin.outFrame.originx = Math.max(
-            existingBin.outFrame.originx,
-            frame.originx
-          );
-          existingBin.outFrame.originy = Math.max(
-            existingBin.outFrame.originy,
-            frame.originy
-          );
+      // repeat the last frame over the remaining outFrames
+      const lastFrame = animation.frames[animation.frames.length - 1];
+
+      if (lastFrame) {
+        for (; i < stateBins.length; i++) {
+          const bin = stateBins[i];
+
+          bin.overlayed.push({ sheetIndex: sheetI, frame: lastFrame });
         }
       }
     }
   }
 
-  // resolve outFrame sizes
+  // resolve outFrame sizes and origin
   const bins: FrameBin[] = Object.values(binMap).flat();
 
   for (const bin of bins) {
-    bin.outFrame;
+    // resolve origin
+    for (const { frame } of bin.overlayed) {
+      bin.outFrame.originx = Math.max(bin.outFrame.originx, frame.originx);
+      bin.outFrame.originy = Math.max(bin.outFrame.originy, frame.originy);
+    }
 
+    // resolve size
     for (const { frame } of bin.overlayed) {
       bin.width = Math.max(
         bin.width,
