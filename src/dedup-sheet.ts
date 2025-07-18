@@ -86,6 +86,7 @@ export default function dedupSheet(
 
         if (matchingBin) {
           frame.flipx = !frame.flipx;
+          frame.originx = frame.w - frame.originx;
         }
       }
 
