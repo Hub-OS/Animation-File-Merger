@@ -173,17 +173,35 @@ export default function overlaySheets(
         continue;
       }
 
+      const destX = outFrame.x + outFrame.originx - frame.originx;
+      const destY = outFrame.y + outFrame.originy - frame.originy;
+
+      ctx.save();
+      ctx.translate(destX, destY);
+
+      if (frame.flipx) {
+        ctx.translate(frame.w, 0);
+        ctx.scale(-1, 1);
+      }
+
+      if (frame.flipy) {
+        ctx.translate(frame.h, 0);
+        ctx.scale(1, -1);
+      }
+
       ctx.drawImage(
         image,
         frame.x,
         frame.y,
         frame.w,
         frame.h,
-        outFrame.x + outFrame.originx - frame.originx,
-        outFrame.y + outFrame.originy - frame.originy,
+        0,
+        0,
         frame.w,
         frame.h
       );
+
+      ctx.restore();
     }
   }
 
