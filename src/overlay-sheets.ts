@@ -132,6 +132,19 @@ export default function overlaySheets(
       bin.outFrame.originy = Math.max(bin.outFrame.originy, frame.originy);
     }
 
+    // add points
+    for (const { frame } of bin.overlayed) {
+      const originShiftX = bin.outFrame.originx - frame.originx;
+      const originShiftY = bin.outFrame.originy - frame.originy;
+
+      for (let point of frame.points) {
+        point = structuredClone(point);
+        point.x -= originShiftX;
+        point.y -= originShiftY;
+        bin.outFrame.points.push(point);
+      }
+    }
+
     // resolve size
     for (const { frame } of bin.overlayed) {
       bin.outFrame.w = Math.max(
