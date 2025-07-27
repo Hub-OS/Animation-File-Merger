@@ -142,8 +142,8 @@ export default function overlaySheets(
 
       for (let point of frame.points) {
         point = structuredClone(point);
-        point.x -= originShiftX;
-        point.y -= originShiftY;
+        point.x += originShiftX;
+        point.y += originShiftY;
         bin.outFrame.points.push(point);
       }
     }
