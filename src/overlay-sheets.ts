@@ -53,10 +53,13 @@ export default function overlaySheets(
       let i = 0;
 
       for (const frame of animation.frames) {
-        let remainingDuration = durationAsSecs(frame.duration);
+        let remainingDuration = durationAsSecs(frame.duration) || 0; // || 0 to handle NaN
+        let emptyDuration = remainingDuration == 0;
 
         // overlay this frame as long as we have the duration to do so
-        while (remainingDuration > 0) {
+        while (emptyDuration || remainingDuration > 0) {
+          emptyDuration = false;
+
           let existingBin = stateBins[i];
           i += 1;
 
