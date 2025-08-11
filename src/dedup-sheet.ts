@@ -4,12 +4,20 @@ import md5 from "md5";
 
 type FrameBin = {
   frames: BoomSheetsFrame[];
-  imageData: ImageData;
+  imageData?: ImageData | null;
   width: number;
   height: number;
 };
 
 const padding = 1;
+
+function imageDataMatches(dataA?: ImageData | null, dataB?: ImageData | null) {
+  if (!dataA || !dataB) {
+    return !dataA && !dataB;
+  }
+
+  return dataA.data.every((b, i) => b == dataB.data[i]);
+}
 
 function matchBin(
   binMap: { [key: string]: FrameBin[] },
@@ -29,7 +37,7 @@ function matchBin(
       continue;
     }
 
-    if (!bin.imageData.data.every((b, i) => b == imageData.data[i])) {
+    if (!imageDataMatches(bin.imageData, imageData)) {
       continue;
     }
 
@@ -51,6 +59,10 @@ export default function dedupSheet(
 
   for (const animation of animations) {
     for (const frame of animation.frames) {
+      if (frame.w == 0 && frame.h == 0) {
+        continue;
+      }
+
       const imageData = sourceCtx.getImageData(
         frame.x,
         frame.y,

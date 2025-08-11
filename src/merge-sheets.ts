@@ -29,6 +29,10 @@ export default function mergeSheets(
 
     for (const animation of clonedSheetAnimations) {
       for (const frame of animation.frames) {
+        if (frame.w == 0 || frame.y == 0) {
+          continue;
+        }
+
         bins.push({
           image: sheet.image,
           frame,
