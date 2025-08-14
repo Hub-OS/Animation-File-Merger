@@ -29,7 +29,7 @@ export default function mergeSheets(
 
     for (const animation of clonedSheetAnimations) {
       for (const frame of animation.frames) {
-        if (frame.w == 0 || frame.y == 0) {
+        if (frame.w == 0 || frame.h == 0) {
           continue;
         }
 
