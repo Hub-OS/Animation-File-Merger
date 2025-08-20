@@ -1,15 +1,23 @@
-import { BoomSheetsAnimation } from "./boomsheets-animations";
+import { BoomSheet, BoomSheetsAnimation } from "./boomsheets-animations";
 
 export type InputSheet = {
   name: string;
   image?: HTMLImageElement;
   imageError?: string;
+  boomsheet?: BoomSheet;
   animations?: BoomSheetsAnimation[];
   animationError?: string;
 };
 
 export default class InputSheets {
   sheets: InputSheet[] = [];
+
+  resolveOutputVersion(): BoomSheet["version"] {
+    if (this.sheets.some((sheet) => sheet.boomsheet?.version == "modern")) {
+      return "modern";
+    }
+    return "legacy";
+  }
 
   findOrInsert(name: string) {
     let entry = this.sheets.find((data) => data.name == name);

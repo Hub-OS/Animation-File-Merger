@@ -31,7 +31,13 @@ document.getElementById("overlay-button")!.onclick = function () {
     const offscreenCanvas = document.createElement("canvas");
     const animations = overlaySheets(offscreenCanvas, inputSheets);
     dedupSheet(canvas, offscreenCanvas, animations);
-    textarea.value = serializeAnimations(animations);
+
+    const boomsheet = {
+      version: inputSheets.resolveOutputVersion(),
+      animations,
+    };
+
+    textarea.value = serializeAnimations(boomsheet);
   } catch (error) {
     logError(error);
   }
@@ -47,7 +53,13 @@ document.getElementById("merge-button")!.onclick = function () {
     const offscreenCanvas = document.createElement("canvas");
     const animations = mergeSheets(offscreenCanvas, inputSheets);
     dedupSheet(canvas, offscreenCanvas, animations);
-    textarea.value = serializeAnimations(animations);
+
+    const boomsheet = {
+      version: inputSheets.resolveOutputVersion(),
+      animations,
+    };
+
+    textarea.value = serializeAnimations(boomsheet);
   } catch (error) {
     logError(error);
   }
@@ -104,7 +116,8 @@ async function loadFiles(files: File[]) {
       try {
         const text = await loadTextFile(file);
 
-        entry.animations = parseAnimationsText(text);
+        entry.boomsheet = parseAnimationsText(text);
+        entry.animations = entry.boomsheet.animations;
         entry.animationError = undefined;
       } catch (error) {
         console.error(error);
