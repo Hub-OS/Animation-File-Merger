@@ -149,7 +149,7 @@ function parseAttributes(line: string, lineNumber: number): Attributes {
   return attributes;
 }
 
-export function parseAnimationsText(text: string): BoomSheet {
+export function parseSheet(text: string): BoomSheet {
   const animations: BoomSheetsAnimation[] = [];
   const boomsheet: BoomSheet = {
     version: "modern",
@@ -326,7 +326,7 @@ function serializeObject(
   return text.join("");
 }
 
-export function serializeAnimations(boomsheet: BoomSheet): string {
+export function serializeSheet(boomsheet: BoomSheet): string {
   const lines: string[] = [];
 
   const options: SerializeObjectOptions = {

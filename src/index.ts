@@ -1,7 +1,4 @@
-import {
-  parseAnimationsText,
-  serializeAnimations,
-} from "./boomsheets-animations";
+import { parseSheet, serializeSheet } from "./boomsheets-animations";
 import dedupSheet from "./dedup-sheet";
 import { loadImageFile, loadTextFile } from "./file-loading";
 import InputSheets from "./input-sheets";
@@ -37,7 +34,7 @@ document.getElementById("overlay-button")!.onclick = function () {
       animations,
     };
 
-    textarea.value = serializeAnimations(boomsheet);
+    textarea.value = serializeSheet(boomsheet);
   } catch (error) {
     logError(error);
   }
@@ -59,7 +56,7 @@ document.getElementById("merge-button")!.onclick = function () {
       animations,
     };
 
-    textarea.value = serializeAnimations(boomsheet);
+    textarea.value = serializeSheet(boomsheet);
   } catch (error) {
     logError(error);
   }
@@ -116,7 +113,7 @@ async function loadFiles(files: File[]) {
       try {
         const text = await loadTextFile(file);
 
-        entry.boomsheet = parseAnimationsText(text);
+        entry.boomsheet = parseSheet(text);
         entry.animations = entry.boomsheet.animations;
         entry.animationError = undefined;
       } catch (error) {
