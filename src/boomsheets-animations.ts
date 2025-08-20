@@ -158,6 +158,7 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
     if (
       line == "" ||
       line.startsWith("#") ||
+      line.startsWith("!") ||
       line.startsWith("imagePath") ||
       line.startsWith("version")
     ) {
@@ -165,7 +166,15 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
       continue;
     }
 
-    if (line.startsWith("animation ")) {
+    if (line.startsWith("anim ")) {
+      const animation: BoomSheetsAnimation = {
+        state: line.slice("anim ".length).trim(),
+        frames: [],
+      };
+
+      animations.push(animation);
+      currentAnimation = animation;
+    } else if (line.startsWith("animation ")) {
       const attributes = parseAttributes(line, lineNumber);
 
       const animation: BoomSheetsAnimation = {
@@ -199,7 +208,7 @@ export function parseAnimationsText(text: string): BoomSheetsAnimation[] {
         originy: parseFloat(attributes.originy) || 0,
         flipx: parseInt(attributes.flipx) == 1,
         flipy: parseInt(attributes.flipy) == 1,
-        duration: attributes.duration || "",
+        duration: attributes.duration || attributes.dur || "",
         points: [],
       };
 

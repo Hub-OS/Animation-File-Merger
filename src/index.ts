@@ -97,7 +97,10 @@ async function loadFiles(files: File[]) {
         console.error(error);
         entry.imageError = error!.toString();
       }
-    } else if (file.name.endsWith(".animation")) {
+    } else if (
+      file.name.endsWith(".animation") ||
+      file.name.endsWith(".anim")
+    ) {
       try {
         const text = await loadTextFile(file);
 
