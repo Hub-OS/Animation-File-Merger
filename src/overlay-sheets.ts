@@ -103,7 +103,11 @@ export default function overlaySheets(
 
           if (existingBin.duration > remainingDuration) {
             // split this bin in two, since this overlay only applies to part of this duration
-            stateBins.splice(i + 1, 0, structuredClone(existingBin));
+            const nextBin = structuredClone(existingBin);
+            nextBin.duration -= remainingDuration;
+            // we'd increment i, but it was already incremented above
+            stateBins.splice(i, 0, nextBin);
+
             existingBin.duration = remainingDuration;
           }
 
