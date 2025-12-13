@@ -75,10 +75,14 @@ function findClosingQuote(text: string, index: number): number {
   return index;
 }
 
-function parseAttributes(line: string, lineNumber: number): Attributes {
+function parseAttributes(
+  line: string,
+  lineNumber: number,
+  attributeStart?: number
+): Attributes {
   const attributes: Attributes = {};
 
-  let index = line.indexOf(" ");
+  let index = attributeStart ?? line.indexOf(" ");
 
   if (index < 0) {
     // no attributes
@@ -149,6 +153,28 @@ function parseAttributes(line: string, lineNumber: number): Attributes {
   return attributes;
 }
 
+function nextWord(text: string, position?: number): [number, string, string] {
+  let startIndex = text.length;
+
+  for (let i = position ?? 0; i < text.length; i++) {
+    if (text[i] != " ") {
+      startIndex = i;
+      break;
+    }
+  }
+
+  let endIndex = text.length;
+
+  for (let i = startIndex; i < text.length; i++) {
+    if (text[i] == " ") {
+      endIndex = i;
+      break;
+    }
+  }
+
+  return [startIndex, text.slice(startIndex, endIndex), text.slice(endIndex)];
+}
+
 export function parseSheet(text: string): BoomSheet {
   const animations: BoomSheetsAnimation[] = [];
   const boomsheet: BoomSheet = {
@@ -175,29 +201,46 @@ export function parseSheet(text: string): BoomSheet {
       continue;
     }
 
-    if (line.startsWith("anim ")) {
-      const animation: BoomSheetsAnimation = {
-        state: line.slice("anim ".length).trim(),
-        frames: [],
-      };
+    if (line.startsWith("anim ") || line.startsWith("animation ")) {
+      const spaceIndex = line.indexOf(" ");
 
-      animations.push(animation);
-      currentAnimation = animation;
-    } else if (line.startsWith("animation ")) {
-      boomsheet.version = "legacy";
-
-      const attributes = parseAttributes(line, lineNumber);
-
-      const animation: BoomSheetsAnimation = {
-        state: attributes.state,
-        frames: [],
-      };
-
-      if (!attributes.state) {
+      if (spaceIndex == -1) {
         throw new Error(
           `Animation is missing state name on line ${lineNumber}`
         );
       }
+
+      let [_, word, remainingLine] = nextWord(line.slice(spaceIndex));
+      let state;
+
+      if (
+        word.startsWith("state=") ||
+        (word == "state" && nextWord(remainingLine)[1].startsWith("="))
+      ) {
+        // state="STATE"
+        boomsheet.version = "legacy";
+
+        const attributes = parseAttributes(line, lineNumber);
+        state = attributes.state;
+      } else if (word.startsWith('"')) {
+        // quoted state
+        remainingLine = line.slice(spaceIndex).trim();
+        state = remainingLine.slice(1, findClosingQuote(remainingLine, 1));
+      } else {
+        // unquoted state
+        state = line.slice(spaceIndex).trim();
+      }
+
+      if (state == undefined) {
+        throw new Error(
+          `Animation is missing state name on line ${lineNumber}`
+        );
+      }
+
+      const animation: BoomSheetsAnimation = {
+        state,
+        frames: [],
+      };
 
       animations.push(animation);
       currentAnimation = animation;
@@ -232,14 +275,29 @@ export function parseSheet(text: string): BoomSheet {
         );
       }
 
-      const attributes = parseAttributes(line, lineNumber);
+      let attributesIndex = "point ".length;
 
-      if (!attributes.label) {
+      // see if we start with a label in quotes or if we need to just read attributes
+      const [wordIndex, word, _] = nextWord(line, attributesIndex);
+      let label;
+
+      if (word.startsWith('"')) {
+        // point starts with label in quotes and not within a named attribute
+        const labelEndIndex = findClosingQuote(line, wordIndex + 1);
+        label = line.slice(wordIndex + 1, labelEndIndex);
+        attributesIndex = labelEndIndex + 1;
+      }
+
+      // read attributes
+      const attributes = parseAttributes(line, lineNumber, attributesIndex);
+      label = label ?? attributes.label;
+
+      if (!label) {
         throw new Error(`Point is missing label on line ${lineNumber}`);
       }
 
       const point: BoomSheetsPoint = {
-        label: attributes.label,
+        label,
         x: parseFloat(attributes.x),
         y: parseFloat(attributes.y),
       };
@@ -262,7 +320,7 @@ type SerializeObjectOptions = {
 
 function serializeObject(
   name: string,
-  object: Object,
+  object: { [key: string]: any },
   options: SerializeObjectOptions = { quoteAllValues: true }
 ): string {
   const text: string[] = [name];
