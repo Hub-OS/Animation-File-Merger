@@ -48,6 +48,9 @@ document.getElementById("merge-button")!.onclick = function () {
 
   try {
     const offscreenCanvas = document.createElement("canvas");
+    // initialize canvas context settings
+    offscreenCanvas.getContext("2d", { willReadFrequently: true });
+
     const animations = mergeSheets(offscreenCanvas, inputSheets);
     dedupSheet(canvas, offscreenCanvas, animations);
 
