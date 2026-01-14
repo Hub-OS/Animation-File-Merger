@@ -2,6 +2,33 @@ import binPack from "bin-pack";
 import { BoomSheetsAnimation, BoomSheetsFrame } from "./boomsheets-animations";
 import InputSheets from "./input-sheets";
 
+type Duration =
+  | {
+      frames: number;
+    }
+  | {
+      seconds: number;
+    };
+
+function subtractDuration(a: Duration, b: Duration) {
+  return "frames" in a && "frames" in b
+    ? { frames: a.frames - b.frames }
+    : { seconds: durationAsSecs(a) - durationAsSecs(b) };
+}
+
+function durationAsSecs(duration: Duration) {
+  // assuming 60 fps
+  return "frames" in duration ? duration.frames / 60 : duration.seconds;
+}
+
+function parseDuration(duration: string): Duration {
+  duration = duration.trim();
+
+  return duration.toLowerCase().endsWith("f")
+    ? { frames: parseInt(duration.slice(0, -1)) }
+    : { seconds: parseFloat(duration) || 0 };
+}
+
 type FrameBin = {
   overlayed: {
     // we want to store the image, but that blocks us from structuredClone
@@ -10,23 +37,12 @@ type FrameBin = {
     frame: BoomSheetsFrame;
   }[];
   outFrame: BoomSheetsFrame;
-  duration: number;
+  duration: Duration;
   width: number;
   height: number;
 };
 
 const padding = 1;
-
-function durationAsSecs(duration: string): number {
-  duration = duration.trim();
-
-  if (duration.toLowerCase().endsWith("f")) {
-    // assuming 60 fps
-    return parseFloat(duration.slice(0, -1)) / 60;
-  }
-
-  return parseFloat(duration);
-}
 
 export default function overlaySheets(
   canvas: HTMLCanvasElement,
@@ -53,11 +69,11 @@ export default function overlaySheets(
       let i = 0;
 
       for (const frame of animation.frames) {
-        let remainingDuration = durationAsSecs(frame.duration) || 0; // || 0 to handle NaN
-        let emptyDuration = remainingDuration == 0;
+        let remainingDuration = parseDuration(frame.duration) || 0; // || 0 to handle NaN
+        let emptyDuration = durationAsSecs(remainingDuration) == 0;
 
         // overlay this frame as long as we have the duration to do so
-        while (emptyDuration || remainingDuration > 0) {
+        while (emptyDuration || durationAsSecs(remainingDuration) > 0) {
           emptyDuration = false;
 
           let existingBin = stateBins[i];
@@ -104,14 +120,21 @@ export default function overlaySheets(
           if (existingBin.duration > remainingDuration) {
             // split this bin in two, since this overlay only applies to part of this duration
             const nextBin = structuredClone(existingBin);
-            nextBin.duration -= remainingDuration;
+            nextBin.duration = subtractDuration(
+              nextBin.duration,
+              remainingDuration
+            );
             // we'd increment i, but it was already incremented above
             stateBins.splice(i, 0, nextBin);
 
             existingBin.duration = remainingDuration;
           }
 
-          remainingDuration -= existingBin.duration;
+          remainingDuration = subtractDuration(
+            remainingDuration,
+            existingBin.duration
+          );
+
           existingBin.overlayed.push({ sheetIndex: sheetI, frame });
         }
       }
@@ -184,7 +207,11 @@ export default function overlaySheets(
     const { outFrame } = item.item;
     outFrame.x = destX;
     outFrame.y = destY;
-    outFrame.duration = item.item.duration.toString();
+    const duration: Duration = item.item.duration;
+    outFrame.duration =
+      "frames" in duration
+        ? duration.frames + "f"
+        : duration.seconds.toString();
 
     for (const { sheetIndex, frame } of item.item.overlayed) {
       const image = inputSheets.sheets[sheetIndex].image;
