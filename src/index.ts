@@ -5,6 +5,7 @@ import InputSheets from "./input-sheets";
 import mergeSheets from "./merge-sheets";
 import overlaySheets from "./overlay-sheets";
 import { updateSheetList } from "./sheet-list-ui";
+import trimSheets from "./trim-sheets";
 
 const inputSheets = new InputSheets();
 
@@ -40,6 +41,10 @@ document.getElementById("overlay-button")!.onclick = function () {
   }
 };
 
+const trimFramesCheckbox = document.getElementById(
+  "trim-frames"
+) as HTMLInputElement;
+
 document.getElementById("merge-button")!.onclick = function () {
   const canvas = document.querySelector("#output canvas") as HTMLCanvasElement;
   const textarea = document.querySelector(
@@ -51,7 +56,12 @@ document.getElementById("merge-button")!.onclick = function () {
     // initialize canvas context settings
     offscreenCanvas.getContext("2d", { willReadFrequently: true });
 
-    const animations = mergeSheets(offscreenCanvas, inputSheets);
+    let animations = mergeSheets(offscreenCanvas, inputSheets);
+
+    if (trimFramesCheckbox.checked) {
+      animations = trimSheets(offscreenCanvas, animations);
+    }
+
     dedupSheet(canvas, offscreenCanvas, animations);
 
     const boomsheet = {
